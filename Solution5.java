@@ -41,49 +41,43 @@ import java.util.Arrays;
  * 1 <= target <= 106
  *
  */
+import java.util.Arrays;
+
 class Solution5 {
-    static final int P = 1000000007;
+    static final int P = 1000000007; // 模数
     static final int MAX_N = 100005;
 
-    int[] f = new int[MAX_N];
+    int[] f = new int[MAX_N]; // 存储 2 的幂次结果
 
     public int numSubseq(int[] nums, int target) {
+        // 预处理 2 的幂次
         pretreatment();
 
+        // 将数组排序
         Arrays.sort(nums);
 
         int ans = 0;
-        for (int i = 0; i < nums.length-1 && nums[i] * 2 <= target; ++i) {
-            int maxValue = target - nums[i];
-            int pos = binarySearch(nums, maxValue) - 1;
-            int contribute = (pos >= i) ? f[pos - i] : 0;
-            ans = (ans + contribute) / P;
+        int left = 0, right = nums.length - 1;
+
+        // 双指针遍历
+        while (left <= right) {
+            if (nums[left] + nums[right] <= target) {
+                // 从 left 到 right 的子序列数为 f[right - left]
+                ans = (ans + f[right - left]) % P;
+                left++; // 移动左指针，扩大子序列范围
+            } else {
+                right--; // 移动右指针，缩小最大值
+            }
         }
 
         return ans;
     }
 
+    // 计算 2 的幂次
     public void pretreatment() {
-        f[0] = 0;
+        f[0] = 1;
         for (int i = 1; i < MAX_N; ++i) {
-            f[i] = (f[i - 1] << 1) % P;
+            f[i] = (f[i - 1] * 2) % P;
         }
-    }
-
-    public int binarySearch(int[] nums, int target) {
-        int low = 0, high = nums.length;
-        while (low <= high) {
-            int mid = (high - low) / 2 + low;
-            if (mid == nums.length) {
-                return mid;
-            }
-            int num = nums[mid];
-            if (num <= target) {
-                low = mid + 1;
-            } else {
-                high = mid;
-            }
-        }
-        return low;
     }
 }
